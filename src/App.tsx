@@ -5,138 +5,19 @@ interface WordItem {
   translation: string;
 }
 
-interface WordsList {
-  easy: WordItem[];
-  normal: WordItem[];
-  hard: WordItem[];
-}
-
 interface BalloonData {
   id: number;
   word: string;
   translation: string;
-  x: number; // เปอร์เซ็นต์ตำแหน่งแนวนอน
-  fallHeight: number; // เปอร์เซ็นต์ตำแหน่งแนวตั้ง (0–100)
-}
-
-interface LeaderboardEntry {
-  score: number;
-  date: string;
+  x: number;
+  fallHeight: number;
 }
 
 type Difficulty = 'Easy' | 'Normal' | 'Hard';
 type Theme = 'day' | 'night';
 
-// คำศัพท์และคำแปล
-const wordsList: WordsList = {
-  easy: [
-    { word: 'cat', translation: 'แมว' },
-    { word: 'dog', translation: 'หมา' },
-    { word: 'sun', translation: 'ดวงอาทิตย์' },
-  ],
-  normal: [
-    { word: 'apple', translation: 'แอปเปิ้ล' },
-    { word: 'banana', translation: 'กล้วย' },
-    { word: 'orange', translation: 'ส้ม' },
-  ],
-  hard: [
-    { word: 'elephant', translation: 'ช้าง' },
-    { word: 'pineapple', translation: 'สับปะรด' },
-    { word: 'umbrella', translation: 'ร่ม' },
-  ],
-};
+const API_URL = 'https://your-domain.com/words.json'; // เปลี่ยนเป็น endpoint จริง
 
-// คอมโพเนนต์ Balloon
-const Balloon: React.FC<BalloonData> = ({ x, fallHeight, word }) => (
-  <div
-    style={{ left: `${x}%`, bottom: `${fallHeight}%` }}
-    className="absolute bg-red-400 rounded-full px-4 py-2 text-white"
-  >
-    {word}
-  </div>
-);
-
-// คอมโพเนนต์ InputField
-interface InputFieldProps {
-  input: string;
-  handleInput: (e: ChangeEvent<HTMLInputElement>) => void;
-}
-
-const InputField: React.FC<InputFieldProps> = ({ input, handleInput }) => (
-  <input
-    type="text"
-    value={input}
-    onChange={handleInput}
-    className="border p-2 w-full text-xl"
-    placeholder="Type here..."
-    autoFocus
-  />
-);
-
-// คอมโพเนนต์ ScoreBoard
-interface ScoreBoardProps {
-  score: number;
-  life: number;
-  combo: number;
-}
-
-const ScoreBoard: React.FC<ScoreBoardProps> = ({ score, life, combo }) => (
-  <div className="flex justify-between mb-2">
-    <div>Score: {score}</div>
-    <div>Life: {life}</div>
-    <div>Combo: {combo}</div>
-  </div>
-);
-
-// คอมโพเนนต์ Leaderboard
-interface LeaderboardProps {
-  leaderboard: LeaderboardEntry[];
-}
-
-const Leaderboard: React.FC<LeaderboardProps> = ({ leaderboard }) => (
-  <div className="mt-4">
-    <h2 className="text-lg">Leaderboard</h2>
-    <ul>
-      {leaderboard.map((entry, idx) => (
-        <li key={idx}>
-          {entry.date}: {entry.score}
-        </li>
-      ))}
-    </ul>
-  </div>
-);
-
-// คอมโพเนนต์ DifficultySelector
-interface DifficultySelectorProps {
-  difficulty: Difficulty;
-  setDifficulty: React.Dispatch<React.SetStateAction<Difficulty>>;
-}
-
-const DifficultySelector: React.FC<DifficultySelectorProps> = ({ difficulty, setDifficulty }) => (
-  <select
-    value={difficulty}
-    onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-    className="border p-2"
-  >
-    <option>Easy</option>
-    <option>Normal</option>
-    <option>Hard</option>
-  </select>
-);
-
-// คอมโพเนนต์ ThemeToggle
-interface ThemeToggleProps {
-  theme: Theme;
-  setTheme: React.Dispatch<React.SetStateAction<Theme>>;
-}
-
-const ThemeToggle: React.FC<ThemeToggleProps> = ({ theme, setTheme }) => (
-  <button onClick={() => setTheme(theme === 'day' ? 'night' : 'day')} className="border p-2">
-    {theme === 'day' ? 'Switch to Night' : 'Switch to Day'}
-  </button>
-);
-
-// คอมโพเนนต์หลัก App
 const App: React.FC = () => {
   const [difficulty, setDifficulty] = useState<Difficulty>('Normal');
   const [theme, setTheme] = useState<Theme>('day');
@@ -147,41 +28,59 @@ const App: React.FC = () => {
   const [life, setLife] = useState<number>(3);
   const [score, setScore] = useState<number>(0);
   const [combo, setCombo] = useState<number>(0);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const balloonId = useRef<number>(0);
   const gameOver = life <= 0;
 
-  // ตั้งค่า spawn rate และ word pool ตาม difficulty
+  // Fetch words from external API
+  useEffect(() => {
+    const fetchWords = async () => {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error('Failed to fetch words');
+        const data: WordItem[] = await res.json();
+        setWordPool(data);
+      } catch {
+        setWordPool([
+          { word: 'cat', translation: 'แมว' },
+          { word: 'dog', translation: 'หมา' },
+          { word: 'sun', translation: 'ดวงอาทิตย์' },
+          { word: 'apple', translation: 'แอปเปิ้ล' },
+          { word: 'banana', translation: 'กล้วย' },
+          { word: 'orange', translation: 'ส้ม' },
+          { word: 'elephant', translation: 'ช้าง' },
+          { word: 'pineapple', translation: 'สับปะรด' },
+          { word: 'umbrella', translation: 'ร่ม' },
+        ]);
+      }
+    };
+    fetchWords();
+  }, []);
+
+  // Adjust spawnRate based on difficulty
   useEffect(() => {
     let rate: number;
     if (difficulty === 'Easy') {
       rate = 3000;
-      setWordPool(wordsList.easy);
     } else if (difficulty === 'Normal') {
       rate = 2000;
-      setWordPool(wordsList.normal);
     } else {
       rate = 1200;
-      setWordPool(wordsList.hard);
     }
     setSpawnRate(rate);
   }, [difficulty]);
 
-  // สร้างบอลลูนใหม่เป็นระยะๆ
+  // Spawn balloons at interval
   useEffect(() => {
-    if (gameOver) {
-      return;
-    }
+    if (gameOver) return;
     const interval = setInterval(() => {
       spawnBalloon();
     }, spawnRate);
-
     return () => {
       clearInterval(interval);
     };
-  }, [spawnRate, gameOver]);
+  }, [spawnRate, gameOver, wordPool]);
 
-  // อัปเดตตำแหน่งบอลลูน (ลอยขึ้น) ทุก 50ms
+  // Update balloon positions every 50ms
   useEffect(() => {
     const timer = setInterval(() => {
       setBalloons((prev) =>
@@ -196,38 +95,21 @@ const App: React.FC = () => {
           .map((b) => ({ ...b, fallHeight: b.fallHeight - 1 }))
       );
     }, 50);
-
     return () => {
       clearInterval(timer);
     };
   }, [balloons]);
 
-  // เก็บ Leaderboard เมื่อเกมจบ
-  useEffect(() => {
-    if (gameOver) {
-      const newEntry: LeaderboardEntry = {
-        score,
-        date: new Date().toLocaleString('th-TH'),
-      };
-      const newLeaderboard = [...leaderboard, newEntry]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 5);
-
-      setLeaderboard(newLeaderboard);
-      localStorage.setItem('leaderboard', JSON.stringify(newLeaderboard));
-    }
-  }, [gameOver, leaderboard, score]);
-
-  // โหลด Leaderboard จาก localStorage ตอนเริ่มต้น
-  useEffect(() => {
-    const stored = localStorage.getItem('leaderboard');
-    if (stored) {
-      setLeaderboard(JSON.parse(stored) as LeaderboardEntry[]);
-    }
-  }, []);
-
   const spawnBalloon = (): void => {
-    const wordObj = wordPool[Math.floor(Math.random() * wordPool.length)];
+    if (wordPool.length === 0) return;
+    const filtered =
+      difficulty === 'Easy'
+        ? wordPool.filter((w) => w.word.length <= 4)
+        : difficulty === 'Normal'
+        ? wordPool.filter((w) => w.word.length <= 6)
+        : wordPool;
+    if (filtered.length === 0) return;
+    const wordObj = filtered[Math.floor(Math.random() * filtered.length)];
     const newBalloon: BalloonData = {
       id: balloonId.current++,
       word: wordObj.word,
@@ -235,7 +117,6 @@ const App: React.FC = () => {
       x: Math.random() * 80 + 10,
       fallHeight: 100,
     };
-
     setBalloons((prev) => [...prev, newBalloon]);
   };
 
@@ -249,7 +130,6 @@ const App: React.FC = () => {
     setInput(e.target.value);
     const trimmed = e.target.value.trim();
     const matched = balloons.find((b) => b.word === trimmed);
-
     if (matched) {
       setBalloons((prev) => prev.filter((b) => b.id !== matched.id));
       setInput('');
@@ -264,38 +144,91 @@ const App: React.FC = () => {
   return (
     <div
       className={`${
-        theme === 'night' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'
-      } min-h-screen p-4`}
+        theme === 'night'
+          ? 'bg-gradient-to-b from-gray-900 to-black text-white'
+          : 'bg-gradient-to-b from-blue-100 to-white text-gray-800'
+      } min-h-screen transition-colors duration-500`}
     >
-      <div className="flex justify-between items-center mb-4">
-        <DifficultySelector difficulty={difficulty} setDifficulty={setDifficulty} />
-        <ThemeToggle theme={theme} setTheme={setTheme} />
+      {/* Header */}
+      <header className="flex flex-col sm:flex-row justify-between items-center p-6 max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-4 sm:mb-0">Typing Balloon</h1>
+        <div className="flex items-center space-x-4">
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+            className="border rounded-lg p-2 bg-white text-sm focus:outline-none"
+          >
+            <option>Easy</option>
+            <option>Normal</option>
+            <option>Hard</option>
+          </select>
+          <button
+            onClick={() => setTheme(theme === 'day' ? 'night' : 'day')}
+            className="border rounded-lg p-2 bg-white text-sm focus:outline-none"
+          >
+            {theme === 'day' ? '🌙 Night' : '☀️ Day'}
+          </button>
+        </div>
+      </header>
+
+      {/* Score & Life */}
+      <div className="flex justify-between items-center max-w-4xl mx-auto px-6">
+        <div className="flex items-center space-x-2">
+          <span className="text-lg font-medium">Score: </span>
+          <span className="text-xl font-bold">{score}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          {Array.from({ length: life }).map((_, i) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <span key={i} className="text-2xl animate-pulse text-red-500">
+              ❤️
+            </span>
+          ))}
+        </div>
+        <div>
+          <span className="text-lg font-medium">Combo: </span>
+          <span className="text-xl font-bold text-indigo-600">{combo}</span>
+        </div>
       </div>
 
-      <ScoreBoard score={score} life={life} combo={combo} />
-
-      <div className="relative h-96 border my-4 overflow-hidden bg-blue-100">
+      {/* Game Area */}
+      <main className="relative h-[60vh] max-w-4xl mx-auto my-8 border-2 border-indigo-300 rounded-xl overflow-hidden bg-white shadow-xl">
         {balloons.map((b) => (
-          <Balloon
+          <div
             key={b.id}
-            id={b.id}
-            x={b.x}
-            fallHeight={b.fallHeight}
-            word={b.word}
-            translation={b.translation}
-          />
+            style={{ left: `${b.x}%`, bottom: `${b.fallHeight}%` }}
+            className="absolute bg-gradient-to-br from-pink-400 to-red-500 rounded-full px-4 py-2 text-white font-semibold shadow-lg drop-shadow-lg animate-bounce-slow"
+          >
+            {b.word}
+          </div>
         ))}
-
         {gameOver && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-2xl">
+          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center text-4xl font-extrabold text-white">
             Game Over
           </div>
         )}
-      </div>
+      </main>
 
-      {!gameOver && <InputField input={input} handleInput={handleInput} />}
+      {/* Input Field */}
+      {!gameOver && (
+        <div className="max-w-4xl mx-auto px-6 mb-12">
+          <input
+            type="text"
+            value={input}
+            onChange={handleInput}
+            className={`w-full border-2 rounded-xl p-4 text-2xl focus:outline-none focus:ring-4 focus:ring-indigo-200 ${
+              theme === 'night' ? 'text-black bg-gray-200' : 'text-gray-800 bg-white'
+            }`}
+            placeholder="Type the word here..."
+            autoFocus
+          />
+        </div>
+      )}
 
-      <Leaderboard leaderboard={leaderboard} />
+      {/* Footer */}
+      <footer className="text-center py-4 text-sm text-gray-500">
+        © 2025 Kittipoj Naewthavorn.
+      </footer>
     </div>
   );
 };
