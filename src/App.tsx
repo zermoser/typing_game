@@ -232,41 +232,76 @@ const App: React.FC = () => {
                 <h2 className={`text-2xl font-semibold text-center mb-6 ${theme === 'night' ? 'text-white' : 'text-indigo-800'}`}>
                   เลือกหมวดหมู่คำศัพท์
                 </h2>
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                  {(['Animals', 'Fruits', 'Objects'] as const).map((cat) => (
-                    <div
-                      key={cat}
-                      onClick={() => setCategory(cat)}
-                      className={`cursor-pointer rounded-2xl p-6 ${
-                        category === cat
+                  {/* Card: Animals */}
+                  <div
+                    onClick={() => setCategory('Animals')}
+                    className={`
+                      cursor-pointer rounded-2xl p-6 flex flex-col items-center text-center
+                      transition-transform transform hover:scale-105 duration-200
+                      ${
+                        category === 'Animals'
                           ? theme === 'night'
-                            ? 'bg-yellow-500 ring-4 ring-indigo-400'
-                            : 'bg-indigo-600 ring-4 ring-white'
+                            ? 'bg-yellow-500 ring-4 ring-indigo-400 text-white'
+                            : 'bg-indigo-600 ring-4 ring-white text-white'
                           : theme === 'night'
-                          ? 'bg-gray-700'
-                          : 'bg-white'
-                      } shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition`}
-                    >
-                      <h3
-                        className={`text-xl font-semibold text-center mb-2 ${
-                          category === cat ? 'text-white' : theme === 'night' ? 'text-gray-200' : 'text-indigo-800'
-                        }`}
-                      >
-                        {cat}
-                      </h3>
-                      <p
-                        className={`text-center text-sm ${
-                          category === cat ? 'text-gray-200' : theme === 'night' ? 'text-gray-400' : 'text-gray-600'
-                        }`}
-                      >
-                        {cat === 'Animals'
-                          ? 'คำศัพท์เกี่ยวกับสัตว์'
-                          : cat === 'Fruits'
-                          ? 'คำศัพท์เกี่ยวกับผลไม้'
-                          : 'คำศัพท์เกี่ยวกับสิ่งของ'}
-                      </p>
-                    </div>
-                  ))}
+                          ? 'bg-gray-700 text-gray-200'
+                          : 'bg-white text-indigo-800'
+                      }
+                      shadow-lg
+                    `}
+                  >
+                    <span className="text-5xl mb-3">{/* เลือกไอคอนตามหมวด */}🐾</span>
+                    <h3 className="text-xl font-semibold mb-1">Animals</h3>
+                    <p className="text-sm opacity-80">คำศัพท์เกี่ยวกับสัตว์</p>
+                  </div>
+
+                  {/* Card: Fruits */}
+                  <div
+                    onClick={() => setCategory('Fruits')}
+                    className={`
+                      cursor-pointer rounded-2xl p-6 flex flex-col items-center text-center
+                      transition-transform transform hover:scale-105 duration-200
+                      ${
+                        category === 'Fruits'
+                          ? theme === 'night'
+                            ? 'bg-yellow-500 ring-4 ring-indigo-400 text-white'
+                            : 'bg-indigo-600 ring-4 ring-white text-white'
+                          : theme === 'night'
+                          ? 'bg-gray-700 text-gray-200'
+                          : 'bg-white text-indigo-800'
+                      }
+                      shadow-lg
+                    `}
+                  >
+                    <span className="text-5xl mb-3">🍎</span>
+                    <h3 className="text-xl font-semibold mb-1">Fruits</h3>
+                    <p className="text-sm opacity-80">คำศัพท์เกี่ยวกับผลไม้</p>
+                  </div>
+
+                  {/* Card: Objects */}
+                  <div
+                    onClick={() => setCategory('Objects')}
+                    className={`
+                      cursor-pointer rounded-2xl p-6 flex flex-col items-center text-center
+                      transition-transform transform hover:scale-105 duration-200
+                      ${
+                        category === 'Objects'
+                          ? theme === 'night'
+                            ? 'bg-yellow-500 ring-4 ring-indigo-400 text-white'
+                            : 'bg-indigo-600 ring-4 ring-white text-white'
+                          : theme === 'night'
+                          ? 'bg-gray-700 text-gray-200'
+                          : 'bg-white text-indigo-800'
+                      }
+                      shadow-lg
+                    `}
+                  >
+                    <span className="text-5xl mb-3">📦</span>
+                    <h3 className="text-xl font-semibold mb-1">Objects</h3>
+                    <p className="text-sm opacity-80">คำศัพท์เกี่ยวกับสิ่งของ</p>
+                  </div>
                 </div>
 
                 <button
@@ -296,31 +331,26 @@ const App: React.FC = () => {
                     <div
                       key={diff}
                       onClick={() => setDifficulty(diff)}
-                      className={`cursor-pointer rounded-2xl p-6 ${
-                        difficulty === diff
-                          ? theme === 'night'
-                            ? 'bg-yellow-500 ring-4 ring-indigo-400'
-                            : 'bg-indigo-600 ring-4 ring-white'
-                          : theme === 'night'
-                          ? 'bg-gray-700'
-                          : 'bg-white'
-                      } shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition`}
+                      className={`
+                        cursor-pointer rounded-2xl p-6 flex flex-col items-center text-center
+                        transition-transform transform hover:scale-105 duration-200
+                        ${
+                          difficulty === diff
+                            ? theme === 'night'
+                              ? 'bg-yellow-500 ring-4 ring-indigo-400 text-white'
+                              : 'bg-indigo-600 ring-4 ring-white text-white'
+                            : theme === 'night'
+                            ? 'bg-gray-700 text-gray-200'
+                            : 'bg-white text-indigo-800'
+                        }
+                        shadow-lg
+                      `}
                     >
-                      <div className="flex justify-center mb-4">
-                        <span className="text-5xl">{diff === 'Easy' ? '🐤' : diff === 'Normal' ? '🌤️' : '🦾'}</span>
-                      </div>
-                      <h3
-                        className={`text-xl font-semibold text-center mb-2 ${
-                          difficulty === diff ? 'text-white' : theme === 'night' ? 'text-gray-200' : 'text-indigo-800'
-                        }`}
-                      >
-                        {diff}
-                      </h3>
-                      <p
-                        className={`text-center text-sm ${
-                          difficulty === diff ? 'text-gray-200' : theme === 'night' ? 'text-gray-400' : 'text-gray-600'
-                        }`}
-                      >
+                      <span className="text-5xl mb-3">
+                        {diff === 'Easy' ? '🐤' : diff === 'Normal' ? '🌤️' : '🦾'}
+                      </span>
+                      <h3 className="text-xl font-semibold mb-1">{diff}</h3>
+                      <p className="text-sm opacity-80">
                         {diff === 'Easy'
                           ? 'Spawn ช้า (3 วิ) คำสั้น (≤4 ตัว)'
                           : diff === 'Normal'
