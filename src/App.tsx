@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 interface WordItem {
   word: string;
   translation: string;
-  category: 'Animals' | 'Fruits' | 'Objects';
+  category: 'Animals' | 'Fruits' | 'Objects' | 'DailyLife' | 'Occupation';
 }
 
 interface BalloonData {
@@ -23,7 +23,7 @@ const App: React.FC = () => {
   // ─── Game State ───────────────────────────────────────────────────────────────
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
-  const [category, setCategory] = useState<'Animals' | 'Fruits' | 'Objects' | null>(null);
+  const [category, setCategory] = useState<'Animals' | 'Fruits' | 'Objects' | 'DailyLife' | 'Occupation' | null>(null);
   const [theme, setTheme] = useState<Theme>('day');
   const [spawnRate, setSpawnRate] = useState<number>(2000);
   const [wordPool, setWordPool] = useState<WordItem[]>([]);
@@ -40,7 +40,7 @@ const App: React.FC = () => {
   const balloonId = useRef<number>(0);
   const gameOver = gameStarted && life <= 0;
 
-  // ─── Fetch Word List ───────────────────────────────────────────────────────────
+  // ─── Fetch Word List (หรือใช้ fallback) ────────────────────────────────────────
   useEffect(() => {
     const fetchWords = async () => {
       try {
@@ -49,17 +49,77 @@ const App: React.FC = () => {
         const data: WordItem[] = await res.json();
         setWordPool(data);
       } catch {
-        // Fallback word list พร้อมหมวดหมู่
+        // Fallback word list พร้อมหมวดหมู่ 5 หมวด แต่ละหมวด 12 คำ
         setWordPool([
-          { word: 'cat', translation: 'แมว', category: 'Animals' },
-          { word: 'dog', translation: 'หมา', category: 'Animals' },
-          { word: 'elephant', translation: 'ช้าง', category: 'Animals' },
-          { word: 'apple', translation: 'แอปเปิ้ล', category: 'Fruits' },
-          { word: 'banana', translation: 'กล้วย', category: 'Fruits' },
-          { word: 'orange', translation: 'ส้ม', category: 'Fruits' },
-          { word: 'pineapple', translation: 'สับปะรด', category: 'Fruits' },
-          { word: 'sun', translation: 'ดวงอาทิตย์', category: 'Objects' },
-          { word: 'umbrella', translation: 'ร่ม', category: 'Objects' },
+          // ─── Animals (12 คำ) ───────────────────────────────────────────
+          { word: 'cat',       translation: 'แมว',      category: 'Animals' },
+          { word: 'dog',       translation: 'หมา',      category: 'Animals' },
+          { word: 'elephant',  translation: 'ช้าง',    category: 'Animals' },
+          { word: 'lion',      translation: 'สิงโต',   category: 'Animals' },
+          { word: 'tiger',     translation: 'เสือ',    category: 'Animals' },
+          { word: 'monkey',    translation: 'ลิง',     category: 'Animals' },
+          { word: 'giraffe',   translation: 'ยีราฟ',   category: 'Animals' },
+          { word: 'zebra',     translation: 'ม้าลาย', category: 'Animals' },
+          { word: 'bear',      translation: 'หมี',     category: 'Animals' },
+          { word: 'rabbit',    translation: 'กระต่าย', category: 'Animals' },
+          { word: 'horse',     translation: 'ม้า',     category: 'Animals' },
+          { word: 'duck',      translation: 'เป็ด',    category: 'Animals' },
+
+          // ─── Fruits (12 คำ) ──────────────────────────────────────────────
+          { word: 'apple',      translation: 'แอปเปิ้ล',        category: 'Fruits' },
+          { word: 'banana',     translation: 'กล้วย',          category: 'Fruits' },
+          { word: 'orange',     translation: 'ส้ม',            category: 'Fruits' },
+          { word: 'pineapple',  translation: 'สับปะรด',        category: 'Fruits' },
+          { word: 'mango',      translation: 'มะม่วง',         category: 'Fruits' },
+          { word: 'strawberry', translation: 'สตรอว์เบอร์รี',    category: 'Fruits' },
+          { word: 'watermelon', translation: 'แตงโม',          category: 'Fruits' },
+          { word: 'grape',      translation: 'องุ่น',          category: 'Fruits' },
+          { word: 'cherry',     translation: 'เชอร์รี่',        category: 'Fruits' },
+          { word: 'peach',      translation: 'พีช',            category: 'Fruits' },
+          { word: 'lemon',      translation: 'มะนาว',         category: 'Fruits' },
+          { word: 'kiwi',       translation: 'กีวี',           category: 'Fruits' },
+
+          // ─── Objects (12 คำ) ─────────────────────────────────────────────
+          { word: 'sun',       translation: 'ดวงอาทิตย์',    category: 'Objects' },
+          { word: 'umbrella',  translation: 'ร่ม',           category: 'Objects' },
+          { word: 'book',      translation: 'หนังสือ',       category: 'Objects' },
+          { word: 'chair',     translation: 'เก้าอี้',        category: 'Objects' },
+          { word: 'table',     translation: 'โต๊ะ',          category: 'Objects' },
+          { word: 'phone',     translation: 'โทรศัพท์',      category: 'Objects' },
+          { word: 'computer',  translation: 'คอมพิวเตอร์',   category: 'Objects' },
+          { word: 'key',       translation: 'กุญแจ',         category: 'Objects' },
+          { word: 'bottle',    translation: 'ขวด',           category: 'Objects' },
+          { word: 'pen',       translation: 'ปากกา',         category: 'Objects' },
+          { word: 'clock',     translation: 'นาฬิกา',       category: 'Objects' },
+          { word: 'lamp',      translation: 'โคมไฟ',         category: 'Objects' },
+
+          // ─── DailyLife (12 คำ) ────────────────────────────────────────────
+          { word: 'eat',       translation: 'กิน',          category: 'DailyLife' },
+          { word: 'drink',     translation: 'ดื่ม',         category: 'DailyLife' },
+          { word: 'sleep',     translation: 'นอน',         category: 'DailyLife' },
+          { word: 'walk',      translation: 'เดิน',        category: 'DailyLife' },
+          { word: 'run',       translation: 'วิ่ง',        category: 'DailyLife' },
+          { word: 'sit',       translation: 'นั่ง',        category: 'DailyLife' },
+          { word: 'stand',     translation: 'ยืน',         category: 'DailyLife' },
+          { word: 'read',      translation: 'อ่าน',        category: 'DailyLife' },
+          { word: 'write',     translation: 'เขียน',       category: 'DailyLife' },
+          { word: 'cook',      translation: 'ทำอาหาร',      category: 'DailyLife' },
+          { word: 'clean',     translation: 'ทำความสะอาด', category: 'DailyLife' },
+          { word: 'buy',       translation: 'ซื้อ',        category: 'DailyLife' },
+
+          // ─── Occupation (12 คำ) ───────────────────────────────────────────
+          { word: 'doctor',    translation: 'แพทย์',       category: 'Occupation' },
+          { word: 'teacher',   translation: 'ครู',         category: 'Occupation' },
+          { word: 'engineer',  translation: 'วิศวกร',      category: 'Occupation' },
+          { word: 'nurse',     translation: 'พยาบาล',      category: 'Occupation' },
+          { word: 'chef',      translation: 'พ่อครัว',      category: 'Occupation' },
+          { word: 'farmer',    translation: 'เกษตรกร',      category: 'Occupation' },
+          { word: 'driver',    translation: 'คนขับรถ',      category: 'Occupation' },
+          { word: 'police',    translation: 'ตำรวจ',        category: 'Occupation' },
+          { word: 'firefighter',translation: 'พนักงานดับเพลิง', category: 'Occupation' },
+          { word: 'pilot',     translation: 'นักบิน',       category: 'Occupation' },
+          { word: 'artist',    translation: 'ศิลปิน',       category: 'Occupation' },
+          { word: 'lawyer',    translation: 'ทนายความ',     category: 'Occupation' },
         ]);
       }
     };
@@ -81,9 +141,9 @@ const App: React.FC = () => {
     if (!difficulty) return;
     let rate: number;
     if (difficulty === 'Easy') {
-      rate = 3000;
+      rate = 5000;
     } else if (difficulty === 'Normal') {
-      rate = 2000;
+      rate = 3000;
     } else {
       rate = 1200;
     }
@@ -252,7 +312,7 @@ const App: React.FC = () => {
                       shadow-lg
                     `}
                   >
-                    <span className="text-5xl mb-3">{/* เลือกไอคอนตามหมวด */}🐾</span>
+                    <span className="text-5xl mb-3">🐾</span>
                     <h3 className="text-xl font-semibold mb-1">Animals</h3>
                     <p className="text-sm opacity-80">คำศัพท์เกี่ยวกับสัตว์</p>
                   </div>
@@ -301,6 +361,52 @@ const App: React.FC = () => {
                     <span className="text-5xl mb-3">📦</span>
                     <h3 className="text-xl font-semibold mb-1">Objects</h3>
                     <p className="text-sm opacity-80">คำศัพท์เกี่ยวกับสิ่งของ</p>
+                  </div>
+
+                  {/* Card: DailyLife */}
+                  <div
+                    onClick={() => setCategory('DailyLife')}
+                    className={`
+                      cursor-pointer rounded-2xl p-6 flex flex-col items-center text-center
+                      transition-transform transform hover:scale-105 duration-200
+                      ${
+                        category === 'DailyLife'
+                          ? theme === 'night'
+                            ? 'bg-yellow-500 ring-4 ring-indigo-400 text-white'
+                            : 'bg-indigo-600 ring-4 ring-white text-white'
+                          : theme === 'night'
+                          ? 'bg-gray-700 text-gray-200'
+                          : 'bg-white text-indigo-800'
+                      }
+                      shadow-lg
+                    `}
+                  >
+                    <span className="text-5xl mb-3">🏠</span>
+                    <h3 className="text-xl font-semibold mb-1">DailyLife</h3>
+                    <p className="text-sm opacity-80">คำทั่วไปในชีวิตประจำวัน</p>
+                  </div>
+
+                  {/* Card: Occupation */}
+                  <div
+                    onClick={() => setCategory('Occupation')}
+                    className={`
+                      cursor-pointer rounded-2xl p-6 flex flex-col items-center text-center
+                      transition-transform transform hover:scale-105 duration-200
+                      ${
+                        category === 'Occupation'
+                          ? theme === 'night'
+                            ? 'bg-yellow-500 ring-4 ring-indigo-400 text-white'
+                            : 'bg-indigo-600 ring-4 ring-white text-white'
+                          : theme === 'night'
+                          ? 'bg-gray-700 text-gray-200'
+                          : 'bg-white text-indigo-800'
+                      }
+                      shadow-lg
+                    `}
+                  >
+                    <span className="text-5xl mb-3">👩‍⚕️</span>
+                    <h3 className="text-xl font-semibold mb-1">Occupation</h3>
+                    <p className="text-sm opacity-80">คำศัพท์หมวดอาชีพ</p>
                   </div>
                 </div>
 
@@ -352,9 +458,9 @@ const App: React.FC = () => {
                       <h3 className="text-xl font-semibold mb-1">{diff}</h3>
                       <p className="text-sm opacity-80">
                         {diff === 'Easy'
-                          ? 'Spawn ช้า (3 วิ) คำสั้น (≤4 ตัว)'
+                          ? 'Spawn ช้า (5 วิ) คำสั้น (≤4 ตัว)'
                           : diff === 'Normal'
-                          ? 'Spawn ปานกลาง (2 วิ) คำกลาง (≤6 ตัว)'
+                          ? 'Spawn ปานกลาง (3 วิ) คำกลาง (≤6 ตัว)'
                           : 'Spawn เร็ว (1.2 วิ) คำยาว (ไม่จำกัด)'}
                       </p>
                     </div>
