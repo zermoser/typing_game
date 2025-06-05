@@ -469,7 +469,7 @@ const App: React.FC = () => {
       {!gameStarted && (
         <main className="flex-grow flex flex-col justify-center items-center px-6">
           {/* Container */}
-          <div className={`w-full max-w-xl ${theme === 'night' ? 'bg-gray-800' : 'bg-indigo-50'} rounded-3xl p-8 shadow-2xl`}>
+          <div className={`w-full max-w-xl mt-6 ${theme === 'night' ? 'bg-gray-800' : 'bg-indigo-50'} rounded-3xl p-8 shadow-2xl`}>
             {startStep === 1 && (
               <>
                 {/* STEP 1: Choose Category */}
@@ -477,7 +477,7 @@ const App: React.FC = () => {
                   เลือกหมวดหมู่คำศัพท์
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {/* Card: Animals */}
                   <div
                     onClick={() => setCategory('Animals')}
